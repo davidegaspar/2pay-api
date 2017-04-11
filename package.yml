@@ -1,0 +1,104 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Simple CRUD web service. State is stored in a DynamoDB table.
+Resources:
+  Api:
+    Properties:
+      DefinitionUri: s3://2pay-cformation/e7291413d3abd5d069d7fec04ee3e485
+      StageName: Prod
+      Variables:
+        DeleteFunction:
+          Ref: DeleteFunction
+        GetFunction:
+          Ref: GetFunction
+        PutFunction:
+          Ref: PutFunction
+    Type: AWS::Serverless::Api
+  ApiKey:
+    Properties:
+      Description: my test key
+      Enabled: true
+      Name: davide-test-key
+    Type: AWS::ApiGateway::ApiKey
+  DeleteFunction:
+    Properties:
+      CodeUri: s3://2pay-cformation/40f0a1c4bcb8dd1173e9f05470ac7d0b
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: Table
+      Events:
+        DeleteResource:
+          Properties:
+            Method: delete
+            Path: /resource/{resourceId}
+            RestApiId:
+              Ref: Api
+          Type: Api
+      Handler: index.delete
+      Policies: AmazonDynamoDBFullAccess
+      Runtime: nodejs4.3
+    Type: AWS::Serverless::Function
+  GetFunction:
+    Properties:
+      CodeUri: s3://2pay-cformation/40f0a1c4bcb8dd1173e9f05470ac7d0b
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: Table
+      Events:
+        GetResource:
+          Properties:
+            Method: get
+            Path: /resource/{resourceId}
+            RestApiId:
+              Ref: Api
+          Type: Api
+      Handler: index.get
+      Policies: AmazonDynamoDBReadOnlyAccess
+      Runtime: nodejs4.3
+    Type: AWS::Serverless::Function
+  PutFunction:
+    Properties:
+      CodeUri: s3://2pay-cformation/40f0a1c4bcb8dd1173e9f05470ac7d0b
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: Table
+      Events:
+        PutResource:
+          Properties:
+            Method: put
+            Path: /resource/{resourceId}
+            RestApiId:
+              Ref: Api
+          Type: Api
+      Handler: index.put
+      Policies: AmazonDynamoDBFullAccess
+      Runtime: nodejs4.3
+    Type: AWS::Serverless::Function
+  Table:
+    Type: AWS::Serverless::SimpleTable
+  UsagePlan:
+    Properties:
+      ApiStages:
+      - ApiId:
+          Ref: Api
+        Stage: Prod
+      Description: my test plan
+      Quota:
+        Limit: 1000
+        Period: DAY
+      Throttle:
+        BurstLimit: 100
+        RateLimit: 100
+      UsagePlanName: davide-test-plan
+    Type: AWS::ApiGateway::UsagePlan
+  UsagePlanKey:
+    Properties:
+      KeyId:
+        Ref: ApiKey
+      KeyType: API_KEY
+      UsagePlanId:
+        Ref: UsagePlan
+    Type: AWS::ApiGateway::UsagePlanKey
+Transform: AWS::Serverless-2016-10-31

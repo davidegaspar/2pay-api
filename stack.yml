@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Simple CRUD web service. State is stored in a DynamoDB table.
+Resources:
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      DefinitionUri: ./swagger.yml
+      StageName: Prod
+      Variables:
+        GetFunction: !Ref GetFunction
+        PutFunction: !Ref PutFunction
+        DeleteFunction: !Ref DeleteFunction
+  ApiKey:
+    Type: AWS::ApiGateway::ApiKey
+    Properties:
+      Description: "my test key"
+      Enabled: True
+      Name: "davide-test-key"
+  UsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties:
+      ApiStages:
+      - {ApiId: !Ref Api, Stage: Prod}
+      Description: "my test plan"
+      Quota:
+        Limit: 1000
+        # Offset: Integer
+        Period: DAY
+      Throttle:
+        BurstLimit: 100
+        RateLimit: 100
+      UsagePlanName: "davide-test-plan"
+  UsagePlanKey:
+    Type: "AWS::ApiGateway::UsagePlanKey"
+    Properties :
+      KeyId: !Ref ApiKey
+      KeyType: API_KEY
+      UsagePlanId: !Ref UsagePlan
+  GetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src
+      Handler: index.get
+      Runtime: nodejs4.3
+      Policies: AmazonDynamoDBReadOnlyAccess
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+      Events:
+        GetResource:
+          Type: Api
+          Properties:
+            Path: /resource/{resourceId}
+            Method: get
+            RestApiId: !Ref Api
+  PutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src
+      Handler: index.put
+      Runtime: nodejs4.3
+      Policies: AmazonDynamoDBFullAccess
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+      Events:
+        PutResource:
+          Type: Api
+          Properties:
+            Path: /resource/{resourceId}
+            Method: put
+            RestApiId: !Ref Api
+  DeleteFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src
+      Handler: index.delete
+      Runtime: nodejs4.3
+      Policies: AmazonDynamoDBFullAccess
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+      Events:
+        DeleteResource:
+          Type: Api
+          Properties:
+            Path: /resource/{resourceId}
+            Method: delete
+            RestApiId: !Ref Api
+  Table:
+    Type: AWS::Serverless::SimpleTable
