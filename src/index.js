@@ -8,6 +8,11 @@ const tableName = process.env.TABLE_NAME;
 const createResponse = (status, body) => {
   let response = {
     "statusCode": status,
+    "headers": {
+      "Access-Control-Allow-Methods": "DELETE, GET, OPTIONS, PUT",
+      "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+      "Access-Control-Allow-Origin": "*"
+    },
     "body": typeof body !== 'string' ? JSON.stringify(body) : body
   };
   console.log(response);

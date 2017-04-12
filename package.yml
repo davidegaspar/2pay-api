@@ -3,7 +3,7 @@ Description: Simple CRUD web service. State is stored in a DynamoDB table.
 Resources:
   Api:
     Properties:
-      DefinitionUri: s3://2pay-cformation/e7291413d3abd5d069d7fec04ee3e485
+      DefinitionUri: s3://2pay-cformation/145b592e733c9b90b7fc6552094c94f9
       StageName: Prod
       Variables:
         DeleteFunction:
@@ -21,7 +21,7 @@ Resources:
     Type: AWS::ApiGateway::ApiKey
   DeleteFunction:
     Properties:
-      CodeUri: s3://2pay-cformation/40f0a1c4bcb8dd1173e9f05470ac7d0b
+      CodeUri: s3://2pay-cformation/8e09495bda120add102f8bacd453c0b1
       Environment:
         Variables:
           TABLE_NAME:
@@ -40,7 +40,7 @@ Resources:
     Type: AWS::Serverless::Function
   GetFunction:
     Properties:
-      CodeUri: s3://2pay-cformation/40f0a1c4bcb8dd1173e9f05470ac7d0b
+      CodeUri: s3://2pay-cformation/8e09495bda120add102f8bacd453c0b1
       Environment:
         Variables:
           TABLE_NAME:
@@ -59,7 +59,7 @@ Resources:
     Type: AWS::Serverless::Function
   PutFunction:
     Properties:
-      CodeUri: s3://2pay-cformation/40f0a1c4bcb8dd1173e9f05470ac7d0b
+      CodeUri: s3://2pay-cformation/8e09495bda120add102f8bacd453c0b1
       Environment:
         Variables:
           TABLE_NAME:
